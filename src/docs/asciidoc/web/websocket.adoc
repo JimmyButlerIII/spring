@@ -1784,7 +1784,7 @@ example shows how register a custom authentication interceptor:
 ----
 	@Configuration
 	@EnableWebSocketMessageBroker
-	public class MyConfig implements WebSocketMessageBrokerConfigurer {
+	public class beanfactorypostprocessor.MyConfig implements WebSocketMessageBrokerConfigurer {
 
 		@Override
 		public void configureClientInboundChannel(ChannelRegistration registration) {
@@ -1943,7 +1943,7 @@ If this is an issue, enable the `setPreservePublishOrder` flag, as the following
 ----
 	@Configuration
 	@EnableWebSocketMessageBroker
-	public class MyConfig implements WebSocketMessageBrokerConfigurer {
+	public class beanfactorypostprocessor.MyConfig implements WebSocketMessageBrokerConfigurer {
 
 		@Override
 		protected void configureMessageBroker(MessageBrokerRegistry registry) {

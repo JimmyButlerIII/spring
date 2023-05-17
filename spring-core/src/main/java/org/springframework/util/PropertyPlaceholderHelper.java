@@ -16,16 +16,11 @@
 
 package org.springframework.util;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.lang.Nullable;
+
+import java.util.*;
 
 /**
  * Utility class for working with Strings that have placeholder values in them.
@@ -128,16 +123,20 @@ public class PropertyPlaceholderHelper {
 
 	protected String parseStringValue(
 			String value, PlaceholderResolver placeholderResolver, @Nullable Set<String> visitedPlaceholders) {
-
+		// 获取 ${ 字符串开始下标位置，如果没有这个字符串说明配置文件名不需要进行解析
 		int startIndex = value.indexOf(this.placeholderPrefix);
 		if (startIndex == -1) {
 			return value;
 		}
 
+		// 创建一个StringBuilder对象开始承接我们解析之后的完整配置文件名
 		StringBuilder result = new StringBuilder(value);
+		// 循环遍历处理传入的文件名，直到没有 ${ 字符串
 		while (startIndex != -1) {
+			// 获取需要替换的字符串最后一个下标位置
 			int endIndex = findPlaceholderEndIndex(result, startIndex);
 			if (endIndex != -1) {
+				// 解析出我们要替换的字符串
 				String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);
 				String originalPlaceholder = placeholder;
 				if (visitedPlaceholders == null) {
@@ -148,8 +147,10 @@ public class PropertyPlaceholderHelper {
 							"Circular placeholder reference '" + originalPlaceholder + "' in property definitions");
 				}
 				// Recursive invocation, parsing placeholders contained in the placeholder key.
+				// 递归调用解析配置文件中的占位符
 				placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
 				// Now obtain the value for the fully resolved key...
+				// 获取占位符的实际值
 				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);
@@ -188,7 +189,6 @@ public class PropertyPlaceholderHelper {
 		}
 		return result.toString();
 	}
-
 	private int findPlaceholderEndIndex(CharSequence buf, int startIndex) {
 		int index = startIndex + this.placeholderPrefix.length();
 		int withinNestedPlaceholder = 0;

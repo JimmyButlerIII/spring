@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.memeyule/schema/person"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			targetNamespace="http://www.memeyule/schema/person"
+			elementFormDefault="qualified">
+
+	<xsd:complexType name="person">
+		<xsd:attribute name="id" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[ The unique identifier for a bean. ]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="age" type="xsd:int">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[ The price for a bean. ]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="name" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[ The origin of the bean. ]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+
+		<xsd:attribute name="email" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[ The price for a bean. ]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:element name="person" type="person">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[ The service config ]]></xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+</xsd:schema>

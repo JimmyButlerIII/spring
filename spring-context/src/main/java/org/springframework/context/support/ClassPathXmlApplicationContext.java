@@ -137,8 +137,14 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	public ClassPathXmlApplicationContext(
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
-
+		/**
+		 * 设置父容器，一般都是null
+		 */
 		super(parent);
+		/**
+		 * 将配置文件名完成字符串替换解析并放入String[]的configLocations中
+		 * 例如我们传入的配置文件名为application-${profile}.xml，在里面完成对${profile}的替换，解析成实际配置文件名
+		 */
 		setConfigLocations(configLocations);
 		if (refresh) {
 			refresh();

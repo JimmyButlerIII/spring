@@ -16,13 +16,8 @@
 
 package org.springframework.core.env;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -31,6 +26,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.SystemPropertyUtils;
+
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Abstract base class for resolving properties against any underlying source.
@@ -202,11 +201,17 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 		return doResolvePlaceholders(text, this.nonStrictHelper);
 	}
 
+	//解析占位符，加载真正的配置文件
 	@Override
 	public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
 		if (this.strictHelper == null) {
+			/**
+			 * 创建对应的PropertyPlaceholderHelper，初始化placeholderPrefix和placeholderSuffix相关属性
+			 * 后续实际执行逻辑由这个helper来完成
+			 */
 			this.strictHelper = createPlaceholderHelper(false);
 		}
+		// 开始执行解析逻辑
 		return doResolvePlaceholders(text, this.strictHelper);
 	}
 
@@ -235,6 +240,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 				this.valueSeparator, ignoreUnresolvablePlaceholders);
 	}
 
+	//实际执行的时候由PropertiesPlaceHolderHelper这个类的replacePlaceholders方法来执行
 	private String doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) {
 		return helper.replacePlaceholders(text, this::getPropertyAsRawString);
 	}

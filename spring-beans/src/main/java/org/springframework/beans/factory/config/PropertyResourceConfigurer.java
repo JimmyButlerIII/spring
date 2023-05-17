@@ -49,7 +49,7 @@ import org.springframework.util.ObjectUtils;
  * @see PropertyOverrideConfigurer
  * @see PropertyPlaceholderConfigurer
  */
-public abstract class PropertyResourceConfigurer extends PropertiesLoaderSupport
+public abstract class  PropertyResourceConfigurer extends PropertiesLoaderSupport
 		implements BeanFactoryPostProcessor, PriorityOrdered {
 
 	private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
