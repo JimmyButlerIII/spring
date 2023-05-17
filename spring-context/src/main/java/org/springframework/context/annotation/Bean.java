@@ -216,7 +216,7 @@ import org.springframework.core.annotation.AliasFor;
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Bean {
+public @interface   Bean {
 
 	/**
 	 * Alias for {@link #name}.

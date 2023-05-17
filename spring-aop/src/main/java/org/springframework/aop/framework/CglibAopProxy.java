@@ -82,7 +82,7 @@ import org.springframework.util.ReflectionUtils;
  * @see DefaultAopProxyFactory
  */
 @SuppressWarnings("serial")
-class CglibAopProxy implements AopProxy, Serializable {
+class  CglibAopProxy implements AopProxy, Serializable {
 
 	// Constants for CGLIB callback array indices
 	private static final int AOP_PROXY = 0;

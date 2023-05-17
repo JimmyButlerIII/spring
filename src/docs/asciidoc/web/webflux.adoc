@@ -925,7 +925,7 @@ The following example shows how to do so for server-side requests:
 ----
 	@Configuration
 	@EnableWebFlux
-	class MyConfig implements WebFluxConfigurer {
+	class beanfactorypostprocessor.MyConfig implements WebFluxConfigurer {
 
 		@Override
 		public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
@@ -938,7 +938,7 @@ The following example shows how to do so for server-side requests:
 ----
 	@Configuration
 	@EnableWebFlux
-	class MyConfig : WebFluxConfigurer {
+	class beanfactorypostprocessor.MyConfig : WebFluxConfigurer {
 
 		override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
 			configurer.defaultCodecs().enableLoggingRequestDetails(true)
@@ -1748,7 +1748,7 @@ under different URLs. The following example shows how to do so:
 .Java
 ----
 	@Configuration
-	public class MyConfig {
+	public class beanfactorypostprocessor.MyConfig {
 
 		@Autowired
 		public void setHandlerMapping(RequestMappingHandlerMapping mapping, UserHandler handler) // <1>
@@ -1773,7 +1773,7 @@ under different URLs. The following example shows how to do so:
 .Kotlin
 ----
 	@Configuration
-	class MyConfig {
+	class beanfactorypostprocessor.MyConfig {
 
 		@Autowired
 		fun setHandlerMapping(mapping: RequestMappingHandlerMapping, handler: UserHandler) { // <1>

@@ -165,7 +165,7 @@ public abstract class AbstractApplicationEventMulticaster
 
 
 	/**
-	 * Return a Collection containing all ApplicationListeners.
+	 * Return a Collection containing all ApplicationList eners.
 	 * @return a Collection of ApplicationListeners
 	 * @see org.springframework.context.ApplicationListener
 	 */

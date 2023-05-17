@@ -1985,7 +1985,7 @@ under different URLs. The following example registers a handler method:
 .Java
 ----
 	@Configuration
-	public class MyConfig {
+	public class beanfactorypostprocessor.MyConfig {
 
 		@Autowired
 		public void setHandlerMapping(RequestMappingHandlerMapping mapping, UserHandler handler) // <1>
@@ -2009,7 +2009,7 @@ under different URLs. The following example registers a handler method:
 .Kotlin
 ----
 	@Configuration
-	class MyConfig {
+	class beanfactorypostprocessor.MyConfig {
 
 		@Autowired
 		fun setHandlerMapping(mapping: RequestMappingHandlerMapping, handler: UserHandler) { // <1>
