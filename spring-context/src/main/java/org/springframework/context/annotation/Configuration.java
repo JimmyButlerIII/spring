@@ -16,16 +16,12 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
+
+import java.lang.annotation.*;
 
 /**
  * Indicates that a class declares one or more {@link Bean @Bean} methods and
@@ -457,6 +453,19 @@ public @interface Configuration {
 	 * a.k.a. "@Bean Lite Mode" (see {@link Bean @Bean's javadoc}). It is therefore
 	 * behaviorally equivalent to removing the {@code @Configuration} stereotype.
 	 * @since 5.2
+	 *
+	 * 这个注解用来指定@Bean注解标注的方法是否使用代理，如果设置为false,也就是不使用注解，每次调用@Bean标注的方法获取到的对象和IOC容器中的都不一样，是一个新的对象，
+	 * 默认是通过代理的方式去容器中查找是否有这个bean，如果有就直接返回，没有就创建一个新的对象放入容器中，这样就保证了每次获取到的都是同一个对象
+	 * Full模式和Lite模式最本质的区别是：配置类本身的Bean对象会不会被Cglib增强。
+	 * 下面这些注解默认就是Lite模式，不会被Cglib增强，所以每次调用都会创建一个新的对象
+	 * 1，Class上标注有@Component注解
+	 * 2，Class上标注有@ComponentScan注解
+	 * 3，Class上标注有@Import注解
+	 * 4，Class上标注有@ImportResource注解
+	 * 5，若类上没有任何注解，存在@Bean方法
+	 * 使用建议
+	 * 1，配置类组件之间无依赖关系时使用Lite模式，这样做可以加快容器启动速度，减少判断
+	 * 2，配置类组件之间有依赖关系时使用Full模式，这样做可以保证当方法被调用时，得到之前单实例的组件
 	 */
 	boolean proxyBeanMethods() default true;
 

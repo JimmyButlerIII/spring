@@ -19,6 +19,8 @@ dependencies {
     testImplementation 'org.springframework:spring-test:5.3.22'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
+    implementation 'cglib:cglib:3.3.0'
+    compileOnly("org.projectlombok:lombok:1.18.28")
 }
 
 test {

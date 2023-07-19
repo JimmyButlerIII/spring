@@ -19,6 +19,20 @@ package org.springframework.beans.factory;
 import org.springframework.lang.Nullable;
 
 /**
+ * 通过FactoryBean可以不遵循Bean的生命周期，可以自定义Bean的创建过程，我们实现FactoryBean接口的类必须通过xml配置文件或者@Bean注解让spring容器扫描到才能生效。
+ * 通过FactoryBean的getObject方法获取的bean不会放入spring容器的三级缓存中。而是单独在beanFactory的factoryBeanObjectCache中缓存。spring会缓存我们实现FactoryBean接口的类的实例生成的bean。
+ *
+ * 1，FactoryBean可以用于创建那些具有复杂初始化逻辑或依赖关系的Bean对象。它可以通过自定义的逻辑来创建和配置Bean，例如在创建Bean之前执行某些操作、动态地根据条件选择实例化的对象等。<br>
+ *
+ * 2,当需要将第三方库的对象纳入到Spring容器中进行管理时，可以使用FactoryBean来创建和管理这些对象。通过FactoryBean，可以将第三方库的对象实例化和配置的过程与Spring的生命周期管理进行集成。<br>
+ *
+ * 3,有些Bean对象可能在应用程序启动时不需要立即创建，而是在需要时才进行实例化。FactoryBean可以支持延迟初始化，只有在调用getObject()方法时才会实际创建Bean对象，从而提高应用程序的性能和资源利用率。<br>
+ *
+ * 4,FactoryBean可以用于创建代理对象，例如AOP（面向切面编程）中的代理对象。通过自定义的FactoryBean，可以在创建Bean对象时添加代理逻辑，实现对目标对象的增强或拦截。<br>
+ *
+ * 5,FactoryBean可以根据条件来创建Bean对象，根据不同的条件返回不同的实例。这在某些场景下非常有用，例如根据配置文件或运行时的环境参数来决定创建哪个具体的Bean实例。<
+ *
+ *
  * Interface to be implemented by objects used within a {@link BeanFactory} which
  * are themselves factories for individual objects. If a bean implements this
  * interface, it is used as a factory for an object to expose, not directly as a

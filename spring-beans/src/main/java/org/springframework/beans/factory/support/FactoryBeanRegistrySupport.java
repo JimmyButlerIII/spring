@@ -16,20 +16,16 @@
 
 package org.springframework.beans.factory.support;
 
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 import org.springframework.lang.Nullable;
+
+import java.security.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Support base class for singleton registries which need to handle
@@ -85,6 +81,8 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	}
 
 	/**
+	 * 根据我么的beanName获取FactoryBean，然后调用getObject方法获取对象并返回
+	 *
 	 * Obtain an object to expose from the given FactoryBean.
 	 * @param factory the FactoryBean instance
 	 * @param beanName the name of the bean
@@ -94,25 +92,37 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
 	 */
 	protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
+		// 如果factory管理的对象是单例且beanName已经在该BeanFactory的单例对象的高速缓存Map集合DefaultListableBeanFactory.singletonObjects中
 		if (factory.isSingleton() && containsSingleton(beanName)) {
+			// singletonObjects加锁来保证线程安全
 			synchronized (getSingletonMutex()) {
+				// 尝试从缓存中获取当前FactoryBeans生成的对象实例
 				Object object = this.factoryBeanObjectCache.get(beanName);
 				if (object == null) {
+					// 如果缓存冲没有，就调用当前FactoryBean对应的getObject方法获取对象实例
 					object = doGetObjectFromFactoryBean(factory, beanName);
 					// Only post-process and store if not put there already during getObject() call above
 					// (e.g. because of circular reference processing triggered by custom getBean calls)
+					// 仅在上面的getObject()调用进行后处理
+					// (例如,由于自定义getBean调用触发的循环引用处理)
+					// 重新从factoryBeanObjectCache中获取beanName对应bean对象
 					Object alreadyThere = this.factoryBeanObjectCache.get(beanName);
 					if (alreadyThere != null) {
+						// 让object引用alreadyThere
 						object = alreadyThere;
 					}
 					else {
+						// 如果要进行后置处理
 						if (shouldPostProcess) {
+							// 如果当前FactoryBean当前正在创建（在整个工厂内）直接返回
 							if (isSingletonCurrentlyInCreation(beanName)) {
 								// Temporarily return non-post-processed object, not storing it yet..
 								return object;
 							}
+							// 对当前beanName进行检查，singletonsCurrentlyInCreation集合中已经存在或者inCreationCheckExclusions集合中存在会报错
 							beforeSingletonCreation(beanName);
 							try {
+								// 对从FactoryBean获得的给定对象进行后处理.
 								object = postProcessObjectFromFactoryBean(object, beanName);
 							}
 							catch (Throwable ex) {
@@ -120,10 +130,12 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 										"Post-processing of FactoryBean's singleton object failed", ex);
 							}
 							finally {
+								// 对当前beanName进行检查，singletonsCurrentlyInCreation集合中已经存在或者inCreationCheckExclusions集合中存在会报错
 								afterSingletonCreation(beanName);
 							}
 						}
 						if (containsSingleton(beanName)) {
+							// 将beanName以及对应的object对象放入factoryBeanObjectCache缓存中，后面解析对FactoryBean可以快速返回FactoryBean管理的对象
 							this.factoryBeanObjectCache.put(beanName, object);
 						}
 					}

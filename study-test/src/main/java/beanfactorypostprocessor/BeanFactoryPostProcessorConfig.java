@@ -5,13 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import parse.Person;
 
 @Configuration
-public class ConfigOne {
-
-	@Bean
-	public Person person(){
-		return new Person("person", 18, "email", "朱勇");
-	}
-
+public class BeanFactoryPostProcessorConfig {
 	@Bean
 	public MyBeanFactoryPostProcessor myBeanFactoryPostProcessor(){
 		return new MyBeanFactoryPostProcessor();
@@ -28,17 +22,22 @@ public class ConfigOne {
 	}
 
 	@Bean
-	public MyBeanDefinitionRegistryPostProcessor MyBeanDefinitionRegistryPostProcessor(){
+	public MyBeanDefinitionRegistryPostProcessor myBeanDefinitionRegistryPostProcessor(){
 		return new MyBeanDefinitionRegistryPostProcessor();
 	}
 
 	@Bean
-	public MyBeanDefinitionRegistryPostProcessorTwo MyBeanDefinitionRegistryPostProcessorTwo(){
+	public MyBeanDefinitionRegistryPostProcessorTwo myBeanDefinitionRegistryPostProcessorTwo(){
 		return new MyBeanDefinitionRegistryPostProcessorTwo();
 	}
 
 	@Bean
-	public MyBeanDefinitionRegistryPostProcessorThree MyBeanDefinitionRegistryPostProcessorThree(){
+	public MyBeanDefinitionRegistryPostProcessorThree myBeanDefinitionRegistryPostProcessorThree(){
 		return new MyBeanDefinitionRegistryPostProcessorThree();
+	}
+
+	@Bean(name = "person")
+	public Person person(){
+		return new Person("BeanFactoryPostProcessorConfig", 18, "email", "朱勇 BeanFactoryPostProcessorConfig");
 	}
 }

@@ -8,7 +8,7 @@ import org.springframework.core.Ordered;
 public class MyBeanFactoryPostProcessorTwo implements BeanFactoryPostProcessor, Ordered {
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		System.out.println("beanfactorypostprocessor.MyBeanFactoryPostProcessorTwo.postProcessBeanFactory");
+		System.out.println("MyBeanFactoryPostProcessorTwo.postProcessBeanFactory");
 	}
 
 	@Override

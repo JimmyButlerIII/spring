@@ -11,12 +11,10 @@
 	   http://www.memeyule/schema/person
 	   http://www.memeyule/schema/person.xsd
 ">
-	<bean id="baseUser" class="User" abstract="true">
-		<property name="email" value="spring@qq.com"/>
-	</bean>
 
-	<bean id="user" class="User" parent="baseUser">
+	<bean id="user" class="User" name="user" >
 		<property name="name" value="马凯"/>
 		<property name="age" value="18"/>
 	</bean>
+
 </beans>

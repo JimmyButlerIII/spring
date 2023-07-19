@@ -48,13 +48,13 @@ public class Person {
 		this.name = name;
 	}
 
-	@Override
-	public String toString() {
-		return "Person{" +
-				"id='" + id + '\'' +
-				", age=" + age +
-				", email='" + email + '\'' +
-				", name='" + name + '\'' +
-				'}';
-	}
+//	@Override
+//	public String toString() {
+//		return "Person{" +
+//				"id='" + id + '\'' +
+//				", age=" + age +
+//				", email='" + email + '\'' +
+//				", name='" + name + '\'' +
+//				'}';
+//	}
 }

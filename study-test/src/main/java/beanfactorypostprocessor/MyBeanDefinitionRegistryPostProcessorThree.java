@@ -9,12 +9,12 @@ public class MyBeanDefinitionRegistryPostProcessorThree implements BeanDefinitio
 
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		System.out.println("beanfactorypostprocessor.MyBeanDefinitionRegistryPostProcessorThree.postProcessBeanDefinitionRegistry");
+		System.out.println("MyBeanDefinitionRegistryPostProcessorThree.postProcessBeanDefinitionRegistry");
 	}
 
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		System.out.println("beanfactorypostprocessor.MyBeanDefinitionRegistryPostProcessorThree.postProcessBeanFactory");
+		System.out.println("MyBeanDefinitionRegistryPostProcessorThree.postProcessBeanFactory");
 
 	}
 }

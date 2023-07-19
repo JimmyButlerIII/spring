@@ -128,7 +128,6 @@ public class PropertyPlaceholderHelper {
 		if (startIndex == -1) {
 			return value;
 		}
-
 		// 创建一个StringBuilder对象开始承接我们解析之后的完整配置文件名
 		StringBuilder result = new StringBuilder(value);
 		// 循环遍历处理传入的文件名，直到没有 ${ 字符串
@@ -152,6 +151,10 @@ public class PropertyPlaceholderHelper {
 				// Now obtain the value for the fully resolved key...
 				// 获取占位符的实际值
 				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
+				/**
+				 * 如果我们获取的值为null，说明我们的配置文件中没有这个占位符，但是我们的配置文件中有可能存在这个占位符的默认值
+				 * 例如：${name:defaultName}，这个时候我们需要获取到这个默认值，然后替换掉我们的占位符
+				 */
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);
 					if (separatorIndex != -1) {
@@ -166,6 +169,7 @@ public class PropertyPlaceholderHelper {
 				if (propVal != null) {
 					// Recursive invocation, parsing placeholders contained in the
 					// previously resolved placeholder value.
+					// 递归调用解析配置文件中的占位符,这里的propVal解析的实际值，完成替换
 					propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
 					result.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
 					if (logger.isTraceEnabled()) {

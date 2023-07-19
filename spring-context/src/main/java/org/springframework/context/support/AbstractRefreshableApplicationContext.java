@@ -140,7 +140,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			 */
 			customizeBeanFactory(beanFactory);
 			/**
-			 * 加载beanDefinition
+			 * 读取xml配置文件生成beanDefinition，放入beanFactory中
 			 */
 			loadBeanDefinitions(beanFactory);
 			this.beanFactory = beanFactory;

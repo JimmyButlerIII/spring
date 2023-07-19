@@ -131,6 +131,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		ignoreDependencyInterface(BeanNameAware.class);
 		ignoreDependencyInterface(BeanFactoryAware.class);
 		ignoreDependencyInterface(BeanClassLoaderAware.class);
+		// 1.创建策略, 如果是原生镜像, 则使用SimpleInstantiationStrategy, 否则使用CglibSubclassingInstantiationStrategy
 		if (NativeDetector.inNativeImage()) {
 			this.instantiationStrategy = new SimpleInstantiationStrategy();
 		}
@@ -465,14 +466,23 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
 		// which cannot be stored in the shared merged bean definition.
+		// 获取我们传入的beanName和RootBeanDefinition对象获取对应的Class对象
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
-		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
+
+		/**
+		 * 如果获取到了Class对象，但是RootBeanDefinition对象中没有设置Class对象，那么我们就需要重新设置一下
+		 * 因为RootBeanDefinition中beanClass是一个Object类型的，这整个RootBeanDefinition中这个beanClass会出现String类型和Class类型
+		 * 下面判断实际上是当前RootBeanDefinition中的beanClass是String类型我们又解析到了Class对象，那么我们就需要重新设置一下
+		 */
+ 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
+			// 重新创建一个新的RootBeanDefinition对象
 			mbdToUse = new RootBeanDefinition(mbd);
+			// 重新设置一下新的RootBeanDefinition对象中的beanClass属性为我们解析到的resolvedClass
 			mbdToUse.setBeanClass(resolvedClass);
 		}
-
 		// Prepare method overrides.
 		try {
+			// 验证及准备覆盖的方法,lookup-method  replace-method，当需要创建的bean对象中包含了lookup-method和replace-method标签的时候，会产生覆盖操作
 			mbdToUse.prepareMethodOverrides();
 		}
 		catch (BeanDefinitionValidationException ex) {
@@ -482,6 +492,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			// 给BeanPostProcessors一个机会来返回代理来替代真正的实例，应用实例化前的前置处理器,用户自定义动态代理的方式，针对于当前的被代理类需要经过标准的代理流程来创建对象
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -1290,6 +1301,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
+	 * 通过工厂方法实例化，先获取构造器解析器，然后用工厂方法进行实例化
+	 *
 	 * Instantiate the bean using a named factory method. The method may be static, if the
 	 * mbd parameter specifies a class, rather than a factoryBean, or an instance variable
 	 * on a factory object itself configured using Dependency Injection.
@@ -1766,6 +1779,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		return wrappedBean;
 	}
 
+	// 调用Aware接口的方法
 	private void invokeAwareMethods(String beanName, Object bean) {
 		if (bean instanceof Aware) {
 			if (bean instanceof BeanNameAware) {

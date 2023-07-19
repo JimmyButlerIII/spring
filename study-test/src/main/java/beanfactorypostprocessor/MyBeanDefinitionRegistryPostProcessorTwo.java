@@ -10,17 +10,17 @@ public class MyBeanDefinitionRegistryPostProcessorTwo implements BeanDefinitionR
 
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		System.out.println("beanfactorypostprocessor.MyBeanDefinitionRegistryPostProcessorTwo.postProcessBeanDefinitionRegistry");
+		System.out.println("MyBeanDefinitionRegistryPostProcessorTwo.postProcessBeanDefinitionRegistry");
 	}
 
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		System.out.println("beanfactorypostprocessor.MyBeanDefinitionRegistryPostProcessorTwo.postProcessBeanFactory");
+		System.out.println("MyBeanDefinitionRegistryPostProcessorTwo.postProcessBeanFactory");
 
 	}
 
 	@Override
 	public int getOrder() {
-		return 100;
+		return 1;
 	}
 }
