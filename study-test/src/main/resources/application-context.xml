@@ -16,5 +16,5 @@
 		<property name="name" value="马凯"/>
 		<property name="age" value="18"/>
 	</bean>
-
+	<context:property-placeholder  location="classpath*:*.properties" ignore-unresolvable="true" />
 </beans>

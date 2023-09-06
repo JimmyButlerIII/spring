@@ -24,7 +24,7 @@ public class MyInstantiationAwareBeanPostProcessor implements InstantiationAware
 			enhancer.setSuperclass(beanClass);
 			enhancer.setCallback(new CustomerMethodInterceptor());
 			BeforeInstantiation beforeInstantiation = (BeforeInstantiation) enhancer.create();
-			System.out.println("创建代理对象："+beforeInstantiation);
+			System.out.println("创建代理对象："+ beforeInstantiation);
 			return beforeInstantiation;
 		}
 		return null;

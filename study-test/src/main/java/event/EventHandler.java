@@ -8,4 +8,9 @@ public class EventHandler {
 	public void handleEvent(CustomerEvent event) {
 		System.out.println("Handling event: " + event);
 	}
+
+	@EventListener(classes = CustomerEvent.class)
+	public void handleEventTwo(CustomerEvent event) {
+		System.out.println("Handling event two: " + event);
+	}
 }

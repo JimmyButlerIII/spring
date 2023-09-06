@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation(project(":spring-context"))
+    implementation(project(":spring-aop"))
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation 'junit:junit:4.12'
@@ -21,6 +22,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     implementation 'cglib:cglib:3.3.0'
     compileOnly("org.projectlombok:lombok:1.18.28")
+    implementation("org.aspectj:aspectjweaver:1.9.20")
 }
 
 test {

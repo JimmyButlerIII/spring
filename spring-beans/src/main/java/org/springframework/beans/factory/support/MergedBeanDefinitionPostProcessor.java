@@ -31,6 +31,8 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * modification. Essentially, this only applies to operations defined on the
  * {@link RootBeanDefinition} itself but not to the properties of its base classes.
  *
+ * 运行时用于合并bean定义的后处理器接口，BeanPostProcessor实现可以实现此子接口，可以实现对mbd进行二次处理
+ *
  * @author Juergen Hoeller
  * @since 2.5
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#getMergedBeanDefinition

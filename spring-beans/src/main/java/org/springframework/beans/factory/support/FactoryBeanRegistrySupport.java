@@ -39,7 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
 
-	/** Cache of singleton objects created by FactoryBeans: FactoryBean name to object. */
+	/**
+	 * 缓存了实现了FactoryBean接口的beanName和通过getObject方法获取的对象实例
+	 * Cache of singleton objects created by FactoryBeans: FactoryBean name to object. */
 	private final Map<String, Object> factoryBeanObjectCache = new ConcurrentHashMap<>(16);
 
 

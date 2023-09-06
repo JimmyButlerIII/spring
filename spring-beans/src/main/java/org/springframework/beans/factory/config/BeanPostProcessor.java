@@ -20,6 +20,13 @@ import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
 /**
+ * 重要的四个实现子接口：
+ * 1. SmartInstantiationAwareBeanPostProcessor 主要规定了对循环依赖的处理
+ * 2. InstantiationAwareBeanPostProcessor 在bean实例化之前和之后作相应处理以及相关属性赋值
+ * 3. DestructionAwareBeanPostProcessor  在要进行bean销毁的时候作相应处理
+ * 4. MergedBeanDefinitionPostProcessor  在bean定义合并完成后，对合并后的beanDefinition进行处理，
+ * 通过子接口对bean生命周期进行更加细致的处理，beanPostProcessor是对bean生命周期的一个比较粗线条的处理
+ *
  * Factory hook that allows for custom modification of new bean instances &mdash;
  * for example, checking for marker interfaces or wrapping beans with proxies.
  *
@@ -54,13 +61,6 @@ import org.springframework.lang.Nullable;
  * @see DestructionAwareBeanPostProcessor
  * @see ConfigurableBeanFactory#addBeanPostProcessor
  * @see BeanFactoryPostProcessor
- *
- * 重要的四个实现子接口：
- * 1. SmartInstantiationAwareBeanPostProcessor 主要规定了对循环依赖的处理
- * 2. InstantiationAwareBeanPostProcessor 在bean实例化之前和之后作相应处理以及相关属性赋值
- * 3. DestructionAwareBeanPostProcessor  在要进行bean销毁的时候作相应处理
- * 4. MergedBeanDefinitionPostProcessor  在bean定义合并完成后，对合并后的beanDefinition进行处理，
- * 通过子接口对bean生命周期进行更加细致的处理，beanPostProcessor是对bean生命周期的一个比较粗线条的处理
  */
 public interface BeanPostProcessor {
 

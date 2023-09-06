@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<bean id="one" class="circulate.One">
+		<property name="two" ref="two"></property>
+	</bean>
+
+	<bean id="two" class="circulate.Two">
+		<property name="one" ref="one"></property>
+	</bean>
+
+    <bean id="logger" class="circulate.Logger" />
+        <!-- 切面：切入点和通知 -->
+	<aop:aspectj-autoproxy />
+    <aop:config>
+        <aop:aspect id="logger" ref="logger">
+            <aop:pointcut expression="execution(* circulate.*.*(..))" id="method" />
+            <aop:before method="recordBefore" pointcut-ref="method" />
+            <aop:after method="recordAfter" pointcut-ref="method" />
+        </aop:aspect>
+    </aop:config>
+</beans>

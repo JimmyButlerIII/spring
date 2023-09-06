@@ -1406,7 +1406,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	private MessageSource getMessageSource() throws IllegalStateException {
 		if (this.messageSource == null) {
 			throw new IllegalStateException("MessageSource not initialized - " +
-					"call 'refresh' before accessing messages via the context: " + this);
+					"call 'refr(esh' before accessing messages via the context: " + this);
 		}
 		return this.messageSource;
 	}

@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * @author Rob Harrop
  * @since 2.0
  */
-public class PointcutComponentDefinition extends AbstractComponentDefinition {
+public class  PointcutComponentDefinition extends AbstractComponentDefinition {
 
 	private final String pointcutBeanName;
 

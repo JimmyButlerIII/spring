@@ -57,7 +57,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.web.context.request.RequestScope
  * @see org.springframework.web.context.request.SessionScope
  */
-public interface Scope {
+public interface  Scope {
 
 	/**
 	 * Return the object with the given name from the underlying scope,

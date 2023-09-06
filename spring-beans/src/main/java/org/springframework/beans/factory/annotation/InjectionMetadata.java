@@ -16,6 +16,12 @@
 
 package org.springframework.beans.factory.annotation;
 
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.lang.Nullable;
+import org.springframework.util.ReflectionUtils;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -25,12 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.PropertyValues;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.lang.Nullable;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Internal class for managing injection metadata.
@@ -68,8 +68,10 @@ public class InjectionMetadata {
 
 	private final Class<?> targetClass;
 
+	// 没有经过check的InjectedElement
 	private final Collection<InjectedElement> injectedElements;
 
+	// 经过check的InjectedElement，后面实际遍历的时候，只会遍历这个集合
 	@Nullable
 	private volatile Set<InjectedElement> checkedElements;
 
@@ -98,6 +100,7 @@ public class InjectionMetadata {
 		return this.targetClass != clazz;
 	}
 
+	// 如果集合中有注解的属性和方法，就会将它们注册到beanDefinition的集合externallyManagedConfigMembers中
 	public void checkConfigMembers(RootBeanDefinition beanDefinition) {
 		Set<InjectedElement> checkedElements = new LinkedHashSet<>(this.injectedElements.size());
 		for (InjectedElement element : this.injectedElements) {
@@ -109,12 +112,12 @@ public class InjectionMetadata {
 		}
 		this.checkedElements = checkedElements;
 	}
-
 	public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
 		Collection<InjectedElement> checkedElements = this.checkedElements;
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
+			// 遍历所有的InjectedElement，调用它们的inject方法
 			for (InjectedElement element : elementsToIterate) {
 				element.inject(target, beanName, pvs);
 			}

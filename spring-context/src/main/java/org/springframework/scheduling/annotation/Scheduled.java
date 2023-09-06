@@ -16,15 +16,10 @@
 
 package org.springframework.scheduling.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+
+import java.lang.annotation.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Annotation that marks a method to be scheduled. Exactly one of the
@@ -61,8 +56,10 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 public @interface Scheduled {
 
 	/**
+	 * 定时任务禁用
+	 *
 	 * A special cron expression value that indicates a disabled trigger: {@value}.
-	 * <p>This is primarily meant for use with <code>${...}</code> placeholders,
+	 * <p> This is primarily meant for use with <code>${...}</code> placeholders,
 	 * allowing for external disabling of corresponding scheduled methods.
 	 * @since 5.1
 	 * @see ScheduledTaskRegistrar#CRON_DISABLED

@@ -53,7 +53,7 @@ import java.security.PrivilegedAction;
  * @see org.springframework.context.ApplicationContextAware
  * @see org.springframework.context.support.AbstractApplicationContext#refresh()
  */
-class ApplicationContextAwareProcessor implements BeanPostProcessor {
+class  ApplicationContextAwareProcessor implements BeanPostProcessor {
 
 	private final ConfigurableApplicationContext applicationContext;
 
