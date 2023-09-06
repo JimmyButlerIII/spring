@@ -40,4 +40,4 @@ The Spring Framework is released under version 2.0 of the [Apache License](https
 ## 说明
 这个是spring-framework的源码学习(版本5.3.10)，本地可以直接启动，我在这里加了一些注释，方便自己学习，也方便大家学习，如果有什么问题，可以提issue，我会尽快回复。
 ## spring体系概览
-![img.png](img.png)
+https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/159ddeb5895d4a9fb77db92070f08f9a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=5155&h=3714&s=1733541&e=png&a=1&b=e2dddc
