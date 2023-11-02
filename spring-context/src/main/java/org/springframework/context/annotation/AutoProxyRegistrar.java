@@ -16,15 +16,14 @@
 
 package org.springframework.context.annotation;
 
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
+
+import java.util.Set;
 
 /**
  * Registers an auto proxy creator against the current {@link BeanDefinitionRegistry}
@@ -41,6 +40,8 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	/**
+	 * 这里会启动AOP流程。
+	 *
 	 * Register, escalate, and configure the standard auto proxy creator (APC) against the
 	 * given registry. Works by finding the nearest annotation declared on the importing
 	 * {@code @Configuration} class that has both {@code mode} and {@code proxyTargetClass}
@@ -58,18 +59,25 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		boolean candidateFound = false;
+		// 获取导入当前配置类上的所有注解
 		Set<String> annTypes = importingClassMetadata.getAnnotationTypes();
+		// 遍历注解
 		for (String annType : annTypes) {
+			// 获取注解上的所有属性
 			AnnotationAttributes candidate = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
 			if (candidate == null) {
 				continue;
 			}
+			// 获取注解上的mode和proxyTargetClass属性
 			Object mode = candidate.get("mode");
 			Object proxyTargetClass = candidate.get("proxyTargetClass");
+			// 如果mode和proxyTargetClass都不为空，且mode是AdviceMode类型，proxyTargetClass是Boolean类型，说明当前要开启AOP
 			if (mode != null && proxyTargetClass != null && AdviceMode.class == mode.getClass() &&
 					Boolean.class == proxyTargetClass.getClass()) {
 				candidateFound = true;
+				// 如果mode是PROXY，且proxyTargetClass是true，说明要使用CGLIB代理
 				if (mode == AdviceMode.PROXY) {
+					// 注册aop的自动代理创建器
 					AopConfigUtils.registerAutoProxyCreatorIfNecessary(registry);
 					if ((Boolean) proxyTargetClass) {
 						AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
@@ -78,6 +86,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 				}
 			}
 		}
+		// 没有找到合适的注解，打印日志
 		if (!candidateFound && logger.isInfoEnabled()) {
 			String name = getClass().getSimpleName();
 			logger.info(String.format("%s was imported but no annotations were found " +

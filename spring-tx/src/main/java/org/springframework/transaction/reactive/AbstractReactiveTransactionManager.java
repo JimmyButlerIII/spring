@@ -16,6 +16,13 @@
 
 package org.springframework.transaction.reactive;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.lang.Nullable;
+import org.springframework.transaction.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -23,21 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import org.springframework.lang.Nullable;
-import org.springframework.transaction.IllegalTransactionStateException;
-import org.springframework.transaction.InvalidTimeoutException;
-import org.springframework.transaction.ReactiveTransaction;
-import org.springframework.transaction.ReactiveTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionSuspensionNotSupportedException;
-import org.springframework.transaction.UnexpectedRollbackException;
 
 /**
  * Abstract base class that implements Spring's standard reactive transaction workflow,
@@ -254,11 +246,15 @@ public abstract class AbstractReactiveTransactionManager implements ReactiveTran
 			GenericReactiveTransaction status, TransactionDefinition definition) {
 
 		if (status.isNewSynchronization()) {
+			// 绑定事务激活
 			synchronizationManager.setActualTransactionActive(status.hasTransaction());
+			// 当前事务的隔离级别
 			synchronizationManager.setCurrentTransactionIsolationLevel(
 					definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?
 							definition.getIsolationLevel() : null);
+			// 是否为只读事务
 			synchronizationManager.setCurrentTransactionReadOnly(definition.isReadOnly());
+			// 事务名称
 			synchronizationManager.setCurrentTransactionName(definition.getName());
 			synchronizationManager.initSynchronization();
 		}

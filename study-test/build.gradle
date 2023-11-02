@@ -10,8 +10,25 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":spring-beans"))
+    implementation(project(":spring-core"))
     implementation(project(":spring-context"))
-    implementation(project(":spring-aop"))
+    implementation(project(":spring-webmvc"))
+    implementation(project(":spring-jdbc"))
+    implementation(project(":spring-orm"))
+    implementation(project(":spring-tx"))
+    implementation(project(":spring-web"))
+    implementation(project(":spring-context-indexer"))
+    implementation(project(":spring-context-support"))
+    implementation(project(":spring-expression"))
+    implementation(project(":spring-instrument"))
+    implementation(project(":spring-jcl"))
+//    implementation(project(":spring-jms"))
+    implementation(project(":spring-messaging"))
+    implementation(project(":spring-oxm"))
+//    implementation(project(":spring-test"))
+//    implementation(project(":spring-webflux"))
+//    implementation(project(":spring-websocket"))
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation 'junit:junit:4.12'
@@ -21,8 +38,10 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     implementation 'cglib:cglib:3.3.0'
-    compileOnly("org.projectlombok:lombok:1.18.28")
+    implementation("org.projectlombok:lombok:1.18.28")
     implementation("org.aspectj:aspectjweaver:1.9.20")
+    implementation("com.alibaba:druid:1.2.4")
+    implementation("mysql:mysql-connector-java:5.1.48")
 }
 
 test {

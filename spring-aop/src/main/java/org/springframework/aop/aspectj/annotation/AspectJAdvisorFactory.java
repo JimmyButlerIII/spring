@@ -16,17 +16,17 @@
 
 package org.springframework.aop.aspectj.annotation;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
 import org.aopalliance.aop.Advice;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.framework.AopConfigException;
 import org.springframework.lang.Nullable;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 /**
+ * 解析@Aspect注解的类，生成对应的Advisor
  * Interface for factories that can create Spring AOP Advisors from classes
  * annotated with AspectJ annotation syntax.
  *

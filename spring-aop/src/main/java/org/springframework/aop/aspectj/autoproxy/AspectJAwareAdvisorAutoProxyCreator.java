@@ -16,14 +16,9 @@
 
 package org.springframework.aop.aspectj.autoproxy;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
 import org.aopalliance.aop.Advice;
 import org.aspectj.util.PartialOrder;
 import org.aspectj.util.PartialOrder.PartialComparable;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.AbstractAspectJAdvice;
 import org.springframework.aop.aspectj.AspectJPointcutAdvisor;
@@ -32,6 +27,10 @@ import org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreat
 import org.springframework.aop.interceptor.ExposeInvocationInterceptor;
 import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * {@link org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator}
@@ -65,13 +64,16 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	 * advisor should run first. "On the way out" of a join point, the highest
 	 * precedence advisor should run last.
 	 */
+	// 对Advisor进行排序，排序规则是根据@AspectJ注解的@Order注解和@Priority注解的值
 	@Override
 	protected List<Advisor> sortAdvisors(List<Advisor> advisors) {
 		List<PartiallyComparableAdvisorHolder> partiallyComparableAdvisors = new ArrayList<>(advisors.size());
+		// 遍历所有的Advisor，封装为PartiallyComparableAdvisorHolder，
 		for (Advisor advisor : advisors) {
 			partiallyComparableAdvisors.add(
 					new PartiallyComparableAdvisorHolder(advisor, DEFAULT_PRECEDENCE_COMPARATOR));
 		}
+
 		List<PartiallyComparableAdvisorHolder> sorted = PartialOrder.sort(partiallyComparableAdvisors);
 		if (sorted != null) {
 			List<Advisor> result = new ArrayList<>(advisors.size());
@@ -98,6 +100,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	@Override
 	protected boolean shouldSkip(Class<?> beanClass, String beanName) {
 		// TODO: Consider optimization by caching the list of the aspect names
+		// 找到所有的Advisor，因为是注解，我们这里调用的是AnnotationAwareAspectJAutoProxyCreator的方法
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 		for (Advisor advisor : candidateAdvisors) {
 			if (advisor instanceof AspectJPointcutAdvisor &&

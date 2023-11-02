@@ -16,15 +16,8 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.asm.Type;
 import org.springframework.beans.factory.BeanFactory;
@@ -38,13 +31,7 @@ import org.springframework.cglib.core.ClassGenerator;
 import org.springframework.cglib.core.ClassLoaderAwareGeneratorStrategy;
 import org.springframework.cglib.core.Constants;
 import org.springframework.cglib.core.SpringNamingPolicy;
-import org.springframework.cglib.proxy.Callback;
-import org.springframework.cglib.proxy.CallbackFilter;
-import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.Factory;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
-import org.springframework.cglib.proxy.NoOp;
+import org.springframework.cglib.proxy.*;
 import org.springframework.cglib.transform.ClassEmitterTransformer;
 import org.springframework.cglib.transform.TransformingClassGenerator;
 import org.springframework.lang.Nullable;
@@ -54,6 +41,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
 /**
  * Enhances {@link Configuration} classes by generating a CGLIB subclass which
@@ -285,12 +278,16 @@ class ConfigurationClassEnhancer {
 					MethodProxy cglibMethodProxy) throws Throwable {
 
 			ConfigurableBeanFactory beanFactory = getBeanFactory(enhancedConfigInstance);
+			// 通过@Bean注解的方法获取beanName
 			String beanName = BeanAnnotationHelper.determineBeanNameFor(beanMethod);
 
 			// Determine whether this bean is a scoped-proxy
+			// 判断当前@Bean修饰的方法是否需要进行代理
 			if (BeanAnnotationHelper.isScopedProxy(beanMethod)) {
+				// "scopedTarget." + beanName形成scopedBeanName
 				String scopedBeanName = ScopedProxyCreator.getTargetBeanName(beanName);
 				if (beanFactory.isCurrentlyInCreation(scopedBeanName)) {
+					// 将beanName设置为scopedBeanName
 					beanName = scopedBeanName;
 				}
 			}
@@ -302,14 +299,17 @@ class ConfigurationClassEnhancer {
 			// proxy that intercepts calls to getObject() and returns any cached bean instance.
 			// This ensures that the semantics of calling a FactoryBean from within @Bean methods
 			// is the same as that of referring to a FactoryBean within XML. See SPR-6602.
+			// 判断当前beanName是否是FactoryBean
 			if (factoryContainsBean(beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName) &&
 					factoryContainsBean(beanFactory, beanName)) {
+				// 从容器中获取FactoryBean
 				Object factoryBean = beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
 				if (factoryBean instanceof ScopedProxyFactoryBean) {
 					// Scoped proxy factory beans are a special case and should not be further proxied
 				}
 				else {
 					// It is a candidate FactoryBean - go ahead with enhancement
+					// 创建一个子类代理，该代理拦截对getObject（）的调用，委托给当前BeanFactory，而不是创建新实例
 					return enhanceFactoryBean(factoryBean, beanMethod.getReturnType(), beanFactory, beanName);
 				}
 			}
@@ -341,16 +341,19 @@ class ConfigurationClassEnhancer {
 			// the bean method, direct or indirect. The bean may have already been marked
 			// as 'in creation' in certain autowiring scenarios; if so, temporarily set
 			// the in-creation status to false in order to avoid an exception.
+			// 当前bean是否在创建
 			boolean alreadyInCreation = beanFactory.isCurrentlyInCreation(beanName);
 			try {
 				if (alreadyInCreation) {
 					beanFactory.setCurrentlyInCreation(beanName, false);
 				}
 				boolean useArgs = !ObjectUtils.isEmpty(beanMethodArgs);
+				// 判断当前bean为单例并且@Bean方法有参数
 				if (useArgs && beanFactory.isSingleton(beanName)) {
 					// Stubbed null arguments just for reference purposes,
 					// expecting them to be autowired for regular singleton references?
 					// A safe assumption since @Bean singleton arguments cannot be optional...
+					// 判断@Bean方法的参数是否为空
 					for (Object arg : beanMethodArgs) {
 						if (arg == null) {
 							useArgs = false;
@@ -358,8 +361,10 @@ class ConfigurationClassEnhancer {
 						}
 					}
 				}
+				// 从IOC容器获取bean实例
 				Object beanInstance = (useArgs ? beanFactory.getBean(beanName, beanMethodArgs) :
 						beanFactory.getBean(beanName));
+				// 检测获取的bean实例是否是当前@Bean方法的返回类型
 				if (!ClassUtils.isAssignableValue(beanMethod.getReturnType(), beanInstance)) {
 					// Detect package-protected NullBean instance through equals(null) check
 					if (beanInstance.equals(null)) {
@@ -389,6 +394,7 @@ class ConfigurationClassEnhancer {
 				Method currentlyInvoked = SimpleInstantiationStrategy.getCurrentlyInvokedFactoryMethod();
 				if (currentlyInvoked != null) {
 					String outerBeanName = BeanAnnotationHelper.determineBeanNameFor(currentlyInvoked);
+					// 注册依赖关系
 					beanFactory.registerDependentBean(beanName, outerBeanName);
 				}
 				return beanInstance;

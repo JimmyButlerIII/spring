@@ -1,28 +1,32 @@
 package circulate;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @Configuration
 @ComponentScan("circulate")
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy(exposeProxy = true)
 public class CirculateConfig {
-
-	@Bean("threeService")
-	public ThreeService threeService(){
-		return new ThreeService();
-	}
-
 //	@Bean
-//	public OneService oneService(){
-//		return new OneService();
+//	public CardService cardService() {
+//		System.out.println("cardService bean method invoke");
+//		return new CardService();
 //	}
-//
+
 //	@Bean
-//	public TwoService twoService(){
+//	public TwoService twoService() {
 //		return new TwoService();
 //	}
 
+//	@Bean
+//	public OneService oneService(TwoService twoService) {
+//		return new OneService(twoService);
+//	}
+
+//	@Bean
+//	public TwoService twoService(OneService oneService) {
+//		System.out.println("twoService bean method invoke");
+//		return new TwoService(oneService);
+//	}
 }

@@ -16,8 +16,6 @@
 
 package org.springframework.aop.framework;
 
-import java.io.Closeable;
-
 import org.springframework.beans.factory.Aware;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -27,7 +25,11 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.io.Closeable;
+
 /**
+ * 为创建代理器提供一些公共方法支持
+ *
  * Base class with common functionality for proxy processors, in particular
  * ClassLoader management and the {@link #evaluateProxyInterfaces} algorithm.
  *
@@ -52,6 +54,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 
 
 	/**
+	 * set或者使用@Order来人为的改变这个顺序~~~
 	 * Set the ordering which will apply to this processor's implementation
 	 * of {@link Ordered}, used when applying multiple processors.
 	 * <p>The default value is {@code Ordered.LOWEST_PRECEDENCE}, meaning non-ordered.
@@ -94,6 +97,8 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 
 
 	/**
+	 * 	这是它提供的一个最为核心的方法：这里决定了如果目标类没有实现接口直接就是Cglib代理
+	 * 	检查给定beanClass上的接口们，并交给proxyFactory处理
 	 * Check the interfaces on the given bean class and apply them to the {@link ProxyFactory},
 	 * if appropriate.
 	 * <p>Calls {@link #isConfigurationCallbackInterface} and {@link #isInternalLanguageInterface}
@@ -102,8 +107,11 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 	 * @param proxyFactory the ProxyFactory for the bean
 	 */
 	protected void evaluateProxyInterfaces(Class<?> beanClass, ProxyFactory proxyFactory) {
+		// 找到该类实现的所有接口
 		Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanClass, getProxyClassLoader());
+		// 是否有合理的代理接口
 		boolean hasReasonableProxyInterface = false;
+		// 遍历所有接口，如果有一个接口不是配置回调接口，不是内部语言接口，且接口方法数量大于0，那么就认为有合理的代理接口
 		for (Class<?> ifc : targetInterfaces) {
 			if (!isConfigurationCallbackInterface(ifc) && !isInternalLanguageInterface(ifc) &&
 					ifc.getMethods().length > 0) {

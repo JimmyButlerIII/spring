@@ -16,46 +16,26 @@
 
 package org.springframework.aop.framework;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
-
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.springframework.aop.Advisor;
-import org.springframework.aop.AopInvocationException;
-import org.springframework.aop.PointcutAdvisor;
-import org.springframework.aop.RawTargetAccess;
-import org.springframework.aop.TargetSource;
+import org.springframework.aop.*;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.cglib.core.ClassLoaderAwareGeneratorStrategy;
 import org.springframework.cglib.core.CodeGenerationException;
 import org.springframework.cglib.core.SpringNamingPolicy;
-import org.springframework.cglib.proxy.Callback;
-import org.springframework.cglib.proxy.CallbackFilter;
-import org.springframework.cglib.proxy.Dispatcher;
-import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.Factory;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
-import org.springframework.cglib.proxy.NoOp;
+import org.springframework.cglib.proxy.*;
 import org.springframework.core.KotlinDetector;
 import org.springframework.core.SmartClassLoader;
 import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.util.*;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.*;
 
 /**
  * CGLIB-based {@link AopProxy} implementation for the Spring AOP framework.
@@ -130,6 +110,8 @@ class  CglibAopProxy implements AopProxy, Serializable {
 			throw new AopConfigException("No advisors and no TargetSource specified");
 		}
 		this.advised = config;
+		// AdvisedSupport保存了解析之后的我们定义的所有的Advisor
+		// AdvisedDispatcher持有了AdvisedSupport
 		this.advisedDispatcher = new AdvisedDispatcher(this.advised);
 	}
 
@@ -163,10 +145,12 @@ class  CglibAopProxy implements AopProxy, Serializable {
 		}
 
 		try {
+			// 获得目标类的Class对象
 			Class<?> rootClass = this.advised.getTargetClass();
 			Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");
-
+			// 记录被代理类的Class对象
 			Class<?> proxySuperClass = rootClass;
+			// 如果当前目标类是CGLIB生成的代理类，则获取其父类，即目标类
 			if (rootClass.getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) {
 				proxySuperClass = rootClass.getSuperclass();
 				Class<?>[] additionalInterfaces = rootClass.getInterfaces();
@@ -176,10 +160,13 @@ class  CglibAopProxy implements AopProxy, Serializable {
 			}
 
 			// Validate the class, writing log messages as necessary.
+			// 校验目标类的方法
 			validateClassIfNecessary(proxySuperClass, classLoader);
 
 			// Configure CGLIB Enhancer...
+			// 创建CGLIB Enhancer对象
 			Enhancer enhancer = createEnhancer();
+			// 设置classLoader
 			if (classLoader != null) {
 				enhancer.setClassLoader(classLoader);
 				if (classLoader instanceof SmartClassLoader &&
@@ -187,11 +174,12 @@ class  CglibAopProxy implements AopProxy, Serializable {
 					enhancer.setUseCache(false);
 				}
 			}
+			// 设置代理类进行的目标类对象及相关属性
 			enhancer.setSuperclass(proxySuperClass);
 			enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.advised));
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
 			enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
-
+			// 设置回调的拦截器链  很重要
 			Callback[] callbacks = getCallbacks(rootClass);
 			Class<?>[] types = new Class<?>[callbacks.length];
 			for (int x = 0; x < types.length; x++) {
@@ -283,21 +271,33 @@ class  CglibAopProxy implements AopProxy, Serializable {
 
 	private Callback[] getCallbacks(Class<?> rootClass) throws Exception {
 		// Parameters used for optimization choices...
+		// 是否暴露代理对象
 		boolean exposeProxy = this.advised.isExposeProxy();
+		// 是否冻结
 		boolean isFrozen = this.advised.isFrozen();
+//		boolean isFrozen = true;
+		// 目标类是否是静态的
 		boolean isStatic = this.advised.getTargetSource().isStatic();
 
 		// Choose an "aop" interceptor (used for AOP calls).
+		/**
+		 * 将生成DynamicAdvisedInterceptor，这个拦截器是用来处理AOP调用的，它持有了AdvisedSupport对象，也就是我们定义的所有的Advisor
+		 * 很重要，后面生成字节码之后，会在相应的方法之后插入这个拦截器，也就是说，所有符合条件的方法前后都会插入这个DynamicAdvisedInterceptor
+		 * 这个类的intercept方法，会根据我们定义的Advisor，来决定调用哪些advice
+		 */
 		Callback aopInterceptor = new DynamicAdvisedInterceptor(this.advised);
 
 		// Choose a "straight to target" interceptor. (used for calls that are
 		// unadvised but can return this). May be required to expose the proxy.
 		Callback targetInterceptor;
+		// 如果暴露代理对象
 		if (exposeProxy) {
+			// 如果需要提前暴露代理对象，根据是否是静态的目标类，创建不同的拦截器，然后放入到ThreadLocal中，方便当前线程获取
 			targetInterceptor = (isStatic ?
 					new StaticUnadvisedExposedInterceptor(this.advised.getTargetSource().getTarget()) :
 					new DynamicUnadvisedExposedInterceptor(this.advised.getTargetSource()));
 		}
+		// 如果不需要暴露代理对象，根据是否是静态的目标类，创建不同的拦截器
 		else {
 			targetInterceptor = (isStatic ?
 					new StaticUnadvisedInterceptor(this.advised.getTargetSource().getTarget()) :
@@ -306,6 +306,7 @@ class  CglibAopProxy implements AopProxy, Serializable {
 
 		// Choose a "direct to target" dispatcher (used for
 		// unadvised calls to static targets that cannot return this).
+		// 创建一个直接调用目标类的拦截器
 		Callback targetDispatcher = (isStatic ?
 				new StaticDispatcher(this.advised.getTargetSource().getTarget()) : new SerializableNoOp());
 
@@ -323,12 +324,20 @@ class  CglibAopProxy implements AopProxy, Serializable {
 		// If the target is a static one and the advice chain is frozen,
 		// then we can make some optimizations by sending the AOP calls
 		// direct to the target using the fixed chain for that method.
+		/**
+		 * 如果目标类是静态的，并且代理对象已经冻结，说明我们不会再修改代理对象
+		 * 那么我们可以通过使用固定的拦截器链，将AOP调用直接发送到目标类，从而进行一些优化
+		 */
 		if (isStatic && isFrozen) {
+			// 获取目标类的method列表
 			Method[] methods = rootClass.getMethods();
+			// 创建一个固定的拦截器数组
 			Callback[] fixedCallbacks = new Callback[methods.length];
+			// 创建一个固定的拦截器map，记录方法名和下标
 			this.fixedInterceptorMap = CollectionUtils.newHashMap(methods.length);
 
 			// TODO: small memory optimization here (can skip creation for methods with no advice)
+			// 遍历目标类方法列表，根据我们设置的切面配置，为每个方法创建一个拦截器链，这个拦截器链里面保存了所有符合条件的advice
 			for (int x = 0; x < methods.length; x++) {
 				Method method = methods[x];
 				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, rootClass);
@@ -663,8 +672,11 @@ class  CglibAopProxy implements AopProxy, Serializable {
 		@Nullable
 		public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 			Object oldProxy = null;
+			// 获取当前线程的代理对象
 			boolean setProxyContext = false;
+			// 目标对象
 			Object target = null;
+			// 获取目标对象的Class对象
 			TargetSource targetSource = this.advised.getTargetSource();
 			try {
 				if (this.advised.exposeProxy) {
@@ -673,12 +685,16 @@ class  CglibAopProxy implements AopProxy, Serializable {
 					setProxyContext = true;
 				}
 				// Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
+				// 获取目标对象
 				target = targetSource.getTarget();
+				// 获取目标对象的Class对象
 				Class<?> targetClass = (target != null ? target.getClass() : null);
+				// 获取方法的拦截器链
 				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 				Object retVal;
 				// Check whether we only have one InvokerInterceptor: that is,
 				// no real advice, but just reflective invocation of the target.
+				// 如果拦截器链为空，并且方法是public的，那么可以直接调用目标对象的方法，不需要创建MethodInvocation
 				if (chain.isEmpty() && Modifier.isPublic(method.getModifiers())) {
 					// We can skip creating a MethodInvocation: just invoke the target directly.
 					// Note that the final invoker must be an InvokerInterceptor, so we know
@@ -689,6 +705,7 @@ class  CglibAopProxy implements AopProxy, Serializable {
 				}
 				else {
 					// We need to create a method invocation...
+					// 创建一个CglibMethodInvocation对象，这个对象持有了目标对象，目标类，方法，参数，拦截器链等信息，用于调用目标方法，这里最终会调用到ReflectiveMethodInvocation的proceed方法
 					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
 				}
 				retVal = processReturnType(proxy, target, method, retVal);
@@ -730,13 +747,13 @@ class  CglibAopProxy implements AopProxy, Serializable {
 		@Nullable
 		private final MethodProxy methodProxy;
 
-		public CglibMethodInvocation(Object proxy, @Nullable Object target, Method method,
+		public  CglibMethodInvocation(Object proxy, @Nullable Object target, Method method,
 				Object[] arguments, @Nullable Class<?> targetClass,
 				List<Object> interceptorsAndDynamicMethodMatchers, MethodProxy methodProxy) {
-
+			// 这里直接调用了ReflectiveMethodInvocation的构造方法
 			super(proxy, target, method, arguments, targetClass, interceptorsAndDynamicMethodMatchers);
-
 			// Only use method proxy for public methods not derived from java.lang.Object
+			// 这是只处理不是从java.lang.Object派生的公共方法使用方法代理
 			this.methodProxy = (Modifier.isPublic(method.getModifiers()) &&
 					method.getDeclaringClass() != Object.class && !AopUtils.isEqualsMethod(method) &&
 					!AopUtils.isHashCodeMethod(method) && !AopUtils.isToStringMethod(method) ?
@@ -747,6 +764,7 @@ class  CglibAopProxy implements AopProxy, Serializable {
 		@Nullable
 		public Object proceed() throws Throwable {
 			try {
+				// 这里调用了ReflectiveMethodInvocation的proceed方法，实际上最终是ReflectiveMethodInvocation完成了方法的调用
 				return super.proceed();
 			}
 			catch (RuntimeException ex) {
@@ -770,6 +788,8 @@ class  CglibAopProxy implements AopProxy, Serializable {
 		}
 
 		/**
+		 * 完成方法的调用
+		 *
 		 * Gives a marginal performance improvement versus using reflection to
 		 * invoke the target when invoking public methods.
 		 */

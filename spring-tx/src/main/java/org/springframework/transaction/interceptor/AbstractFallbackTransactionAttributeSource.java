@@ -16,20 +16,19 @@
 
 package org.springframework.transaction.interceptor;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringValueResolver;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Abstract implementation of {@link TransactionAttributeSource} that caches
@@ -107,6 +106,7 @@ public abstract class AbstractFallbackTransactionAttributeSource
 		}
 
 		// First, see if we have a cached value.
+		// 缓存键 方法名和类名，记录当前方法上的事务注解传播级别
 		Object cacheKey = getCacheKey(method, targetClass);
 		TransactionAttribute cached = this.attributeCache.get(cacheKey);
 		if (cached != null) {
@@ -121,14 +121,18 @@ public abstract class AbstractFallbackTransactionAttributeSource
 		}
 		else {
 			// We need to work it out.
+			// 获取@Transactional事务注解属性
 			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
 			// Put it in the cache.
 			if (txAttr == null) {
+				// 往缓存中存放空事务注解属性
 				this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
 			}
 			else {
+				// 我们执行方法的描述符:包名+类名+方法名
 				String methodIdentification = ClassUtils.getQualifiedMethodName(method, targetClass);
 				if (txAttr instanceof DefaultTransactionAttribute) {
+					// 把方法描述设置到事务属性上去
 					DefaultTransactionAttribute dta = (DefaultTransactionAttribute) txAttr;
 					dta.setDescriptor(methodIdentification);
 					dta.resolveAttributeStrings(this.embeddedValueResolver);
@@ -163,7 +167,9 @@ public abstract class AbstractFallbackTransactionAttributeSource
 	 */
 	@Nullable
 	protected TransactionAttribute computeTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
+		// method代表接口中的方法，specificMethod代表实现类中的方法
 		// Don't allow no-public methods as required.
+		// 首先判断方法是否是public，默认是支持public的
 		if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
 			return null;
 		}
@@ -173,12 +179,14 @@ public abstract class AbstractFallbackTransactionAttributeSource
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 
 		// First try is the method in the target class.
+		// 获取方法上的事务注解属性, 优先方法上解析的事务注解的属性，会去找父类或者接口的方法
 		TransactionAttribute txAttr = findTransactionAttribute(specificMethod);
 		if (txAttr != null) {
 			return txAttr;
 		}
 
 		// Second try is the transaction attribute on the target class.
+		// 获取类上的事务注解属性，进入AnnotationTransactionAttributeSource类
 		txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
 		if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
 			return txAttr;

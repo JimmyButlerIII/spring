@@ -20,6 +20,8 @@ import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 
 /**
+ * 切面实例工厂，用于提供 AspectJ 切面的实例，解耦 Spring 的 BeanFactory
+ *
  * Interface implemented to provide an instance of an AspectJ aspect.
  * Decouples from Spring's bean factory.
  *

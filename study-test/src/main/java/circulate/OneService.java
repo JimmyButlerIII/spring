@@ -2,6 +2,7 @@ package circulate;
 
 import javax.annotation.Resource;
 
+//@Component
 public class OneService {
 	@Resource
 	private TwoService twoService;
@@ -15,6 +16,15 @@ public class OneService {
 	}
 
 	public void test() {
-		System.out.println("OneService-test"+ twoService);
+		two();
+		System.out.println("OneService-test "+ twoService);
+	}
+
+	public void two(){
+		System.out.println("OneService-two");
+	}
+
+	public OneService(TwoService twoService) {
+		this.twoService = twoService;
 	}
 }

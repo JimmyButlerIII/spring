@@ -16,23 +16,18 @@
 
 package org.springframework.aop.framework;
 
+import org.aopalliance.intercept.Interceptor;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.springframework.aop.*;
+import org.springframework.aop.framework.adapter.AdvisorAdapterRegistry;
+import org.springframework.aop.framework.adapter.GlobalAdvisorAdapterRegistry;
+import org.springframework.lang.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.aopalliance.intercept.Interceptor;
-import org.aopalliance.intercept.MethodInterceptor;
-
-import org.springframework.aop.Advisor;
-import org.springframework.aop.IntroductionAdvisor;
-import org.springframework.aop.IntroductionAwareMethodMatcher;
-import org.springframework.aop.MethodMatcher;
-import org.springframework.aop.PointcutAdvisor;
-import org.springframework.aop.framework.adapter.AdvisorAdapterRegistry;
-import org.springframework.aop.framework.adapter.GlobalAdvisorAdapterRegistry;
-import org.springframework.lang.Nullable;
 
 /**
  * A simple but definitive way of working out an advice chain for a Method,
@@ -53,19 +48,26 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 
 		// This is somewhat tricky... We have to process introductions first,
 		// but we need to preserve order in the ultimate list.
+		// 这里用了一个单例模式 获取DefaultAdvisorAdapterRegistry实例
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
+		// 获取所有的Advisor通知期
 		Advisor[] advisors = config.getAdvisors();
+		// 用于存放拦截器链
 		List<Object> interceptorList = new ArrayList<>(advisors.length);
+		// 获取目标类，如果目标类不为空，则使用目标类，否则使用方法所在的类
 		Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
 		Boolean hasIntroductions = null;
-
+		// 遍历所有的Advisor
 		for (Advisor advisor : advisors) {
+			// 如果是PointcutAdvisor类型的，就是通过切点来进行匹配的
 			if (advisor instanceof PointcutAdvisor) {
 				// Add it conditionally.
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
+				// 检测当前的类是否匹配当前的切点
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
 					boolean match;
+					//检测Advisor是否适用于此目标方法，这里会根据切面表达式的不同，来使用不同的匹配器
 					if (mm instanceof IntroductionAwareMethodMatcher) {
 						if (hasIntroductions == null) {
 							hasIntroductions = hasMatchingIntroductions(advisors, actualClass);
@@ -75,7 +77,9 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 					else {
 						match = mm.matches(method, actualClass);
 					}
+					// 如果匹配的话，就将Advisor转换为MethodInterceptor
 					if (match) {
+						// 通过AdvisorAdapterRegistry中注册的AdvisorAdapter对Advisor进行转换
 						MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 						if (mm.isRuntime()) {
 							// Creating a new object instance in the getInterceptors() method
@@ -90,6 +94,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 					}
 				}
 			}
+			// 如果是IntroductionAdvisor类型的，就是通过IntroductionAdvisor来进行匹配的
 			else if (advisor instanceof IntroductionAdvisor) {
 				IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
 				if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {

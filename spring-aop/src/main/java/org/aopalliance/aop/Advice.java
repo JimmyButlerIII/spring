@@ -17,6 +17,9 @@
 package org.aopalliance.aop;
 
 /**
+ * 通知
+ * 假如我们要在某个方法进行之后做一些其它操作，那我们在方法进行后添加的代码部分就称为增强（通知），也就是说实际增加的逻辑部分就称为通知。
+ * 顶层接口
  * Tag interface for Advice. Implementations can be any type
  * of advice, such as Interceptors.
  *

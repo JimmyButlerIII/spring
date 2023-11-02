@@ -41,11 +41,14 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 
 	@Bean(name = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	// 事务切面增强器，持有transactionAttributeSource和transactionInterceptor信息，
 	public BeanFactoryTransactionAttributeSourceAdvisor transactionAdvisor(
 			TransactionAttributeSource transactionAttributeSource, TransactionInterceptor transactionInterceptor) {
-
+		// 这个advisor很重要，在aop处理过程中会用到，通过这个advisor判断当前bean是否需要进行事务代理增强并完成对应的代理类的生成。
 		BeanFactoryTransactionAttributeSourceAdvisor advisor = new BeanFactoryTransactionAttributeSourceAdvisor();
+		// 设置TransactionAttributeSource，用于后面进行@Transactional注解的解析
 		advisor.setTransactionAttributeSource(transactionAttributeSource);
+		// 设置TransactionInterceptor，用于后面进行事务的拦截增强
 		advisor.setAdvice(transactionInterceptor);
 		if (this.enableTx != null) {
 			advisor.setOrder(this.enableTx.<Integer>getNumber("order"));
@@ -55,12 +58,14 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	// 主要完成@Transactional注解的解析
 	public TransactionAttributeSource transactionAttributeSource() {
 		return new AnnotationTransactionAttributeSource();
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	// 事务切面增强器，代理了@Transactional注解的方法，进行事务的拦截增强
 	public TransactionInterceptor transactionInterceptor(TransactionAttributeSource transactionAttributeSource) {
 		TransactionInterceptor interceptor = new TransactionInterceptor();
 		interceptor.setTransactionAttributeSource(transactionAttributeSource);

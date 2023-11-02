@@ -16,11 +16,12 @@
 
 package org.springframework.aop.support;
 
-import java.lang.reflect.Method;
-
 import org.springframework.aop.MethodMatcher;
 
+import java.lang.reflect.Method;
+
 /**
+ * 因为每次都要对方法参数进行检查，无法对匹配结果进行缓存，所以，匹配效率相对 StatisMethodMatcher 来说要差，但匹配度更高。
  * Convenient abstract superclass for dynamic method matchers,
  * which do care about arguments at runtime.
  *

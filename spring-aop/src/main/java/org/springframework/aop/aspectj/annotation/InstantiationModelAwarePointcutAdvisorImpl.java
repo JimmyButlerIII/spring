@@ -16,14 +16,8 @@
 
 package org.springframework.aop.aspectj.annotation;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.reflect.PerClauseKind;
-
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.aspectj.AspectJPrecedenceInformation;
@@ -32,6 +26,11 @@ import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory.
 import org.springframework.aop.support.DynamicMethodMatcherPointcut;
 import org.springframework.aop.support.Pointcuts;
 import org.springframework.lang.Nullable;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * Internal implementation of AspectJPointcutAdvisor.
@@ -84,16 +83,26 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 			Method aspectJAdviceMethod, AspectJAdvisorFactory aspectJAdvisorFactory,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
 
+		// 切点表达式，如果是@Pointcut注解的方法，那么这里的declaredPointcut就是@Pointcut注解的方法
 		this.declaredPointcut = declaredPointcut;
+		// 切面类的Class对象
 		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
+		// 切面类的方法名
 		this.methodName = aspectJAdviceMethod.getName();
+		// 切面类的方法参数类型
 		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
+		// 切面类的方法， @Before、@After、@Around等注解的方法
 		this.aspectJAdviceMethod = aspectJAdviceMethod;
+		// aspectj的通知工厂，调用切面的方法，生成对应的通知
 		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
+		// aspect的实例工厂
 		this.aspectInstanceFactory = aspectInstanceFactory;
+		// 切面的顺序
 		this.declarationOrder = declarationOrder;
+		// 切面的名称
 		this.aspectName = aspectName;
 
+		// 判断当前的切面对象是否需要延时加载
 		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
 			// Static part of the pointcut is a lazy type.
 			Pointcut preInstantiationPointcut = Pointcuts.union(
@@ -110,6 +119,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
+			// 将切面中的通知构造为advice通知对象 (将通知方法实例化为通知拦截器MethodInterceptor类)
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
 		}
 	}
@@ -146,6 +156,8 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 	}
 
 	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
+		// 入参为切点表达式类
+		// 这里是通过调用aspectJAdvisorFactory来获取Advice，这里调用ReflectiveAspectJAdvisorFactory的getAdvice方法
 		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
 		return (advice != null ? advice : EMPTY_ADVICE);

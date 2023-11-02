@@ -16,22 +16,12 @@
 
 package org.springframework.aop.aspectj;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.weaver.tools.JoinPointMatch;
 import org.aspectj.weaver.tools.PointcutParameter;
-
 import org.springframework.aop.AopInvocationException;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
@@ -43,13 +33,20 @@ import org.springframework.aop.support.StaticMethodMatcher;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.util.*;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * 通知的抽象类，根据 AspectJ 注解生成Advice
+ *
  * Base class for AOP Alliance {@link org.aopalliance.aop.Advice} classes
  * wrapping an AspectJ aspect or an AspectJ-annotated advice method.
  *
@@ -167,11 +164,17 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, AspectInstanceFactory aspectInstanceFactory) {
 
 		Assert.notNull(aspectJAdviceMethod, "Advice method must not be null");
+		// 切面类的Class对象
 		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
+		// 切面类的方法， @Before、@After、@Around等注解的方法
 		this.methodName = aspectJAdviceMethod.getName();
+		// 切面类的方法参数类型
 		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
+		// 切面类的全方法名， @Before、@After、@Around等注解的方法。
 		this.aspectJAdviceMethod = aspectJAdviceMethod;
+		// 切点表达式
 		this.pointcut = pointcut;
+		// aspect的实例工厂
 		this.aspectInstanceFactory = aspectInstanceFactory;
 	}
 
@@ -624,8 +627,10 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		return invokeAdviceMethodWithGivenArgs(argBinding(jp, jpMatch, returnValue, t));
 	}
 
+	// 通过给定的参数调用通知方法
 	protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
 		Object[] actualArgs = args;
+		// 获取通知方法的参数个数，如果为0，则不传入参数
 		if (this.aspectJAdviceMethod.getParameterCount() == 0) {
 			actualArgs = null;
 		}

@@ -19,6 +19,9 @@ package org.springframework.aop;
 import org.aopalliance.aop.Advice;
 
 /**
+ * spring aop的顶层抽象，
+ * 用于封装通知（Advice）和切点（Pointcut）的信息
+ *
  * Base interface holding AOP <b>advice</b> (action to take at a joinpoint)
  * and a filter determining the applicability of the advice (such as
  * a pointcut). <i>This interface is not for use by Spring users, but to
@@ -44,6 +47,8 @@ public interface Advisor {
 
 
 	/**
+	 * 该Advisor 持有的通知器
+	 * 
 	 * Return the advice part of this aspect. An advice may be an
 	 * interceptor, a before advice, a throws advice, etc.
 	 * @return the advice that should apply if the pointcut matches

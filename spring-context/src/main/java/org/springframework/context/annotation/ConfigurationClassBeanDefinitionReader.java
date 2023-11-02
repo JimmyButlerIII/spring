@@ -137,7 +137,10 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 		// 如果一个bean是通过@Import(ImportSelector)的方式添加到容器中的，那么此时configClass.isImported()返回的是true
-		// 而且configClass的importedBy属性里面存储的是ConfigurationClass就是将bean导入的类
+		// 而且configClass的importedBy属性里面存储的将当前通过@Import将当前configClass导入的配置类类
+		// 比如自定义TransactionConfig配置类使用@EnableTransactionManagement注解,通过@EnableTransactionManagement注解导入TransactionManagementConfigurationSelector，
+		// 例如通过TransactionManagementConfigurationSelector导入了ProxyTransactionManagementConfiguration，ProxyTransactionManagementConfiguration又被@Configuraiton注解修饰
+		// 这里解析configClass为ProxyTransactionManagementConfiguration这个配置时，configClass.isImported()返回的是true，而且configClass的importedBy属性里面存储的是TransactionConfig这个我们自定义的配置类
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
@@ -146,8 +149,9 @@ class ConfigurationClassBeanDefinitionReader {
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
-
+		// 解析通过@ImportResource注解导入的xml配置文件定义的bean并注入spring容器
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		// 解析通过@Import注解导入ImportBeanDefinitionRegistrar接口的实现类定义的bean并注入spring容器
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 

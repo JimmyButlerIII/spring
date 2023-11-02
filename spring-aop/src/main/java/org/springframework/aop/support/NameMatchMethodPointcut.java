@@ -16,16 +16,18 @@
 
 package org.springframework.aop.support;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.PatternMatchUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.lang.Nullable;
-import org.springframework.util.PatternMatchUtils;
-
 /**
+ * 通过方法名匹配的切点，作为正则表达式的替代方案。
+ *
  * Pointcut bean for simple method name matches, as an alternative to regexp patterns.
  *
  * <p>Does not handle overloaded methods: all methods with a given name will be eligible.

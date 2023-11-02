@@ -31,6 +31,9 @@ public final class GlobalAdvisorAdapterRegistry {
 
 
 	/**
+	 * 创建一个DefaultAdvisorAdapterRegistry实例，这个实例中包含了MethodBeforeAdviceAdapter、AfterReturningAdviceAdapter、ThrowsAdviceAdapter
+	 * 通过adapter的方式将没有实现MethodInterceptor接口的advice转换成实现了MethodInterceptor接口的advice
+	 *
 	 * Keep track of a single instance so we can return it to classes that request it.
 	 */
 	private static AdvisorAdapterRegistry instance = new DefaultAdvisorAdapterRegistry();

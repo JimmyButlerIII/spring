@@ -17,6 +17,7 @@
 package org.springframework.aop;
 
 /**
+ * 这个只能用在类级别的拦截，不能用在方法级别的拦截
  * Superinterface for advisors that perform one or more AOP <b>introductions</b>.
  *
  * <p>This interface cannot be implemented directly; subinterfaces must

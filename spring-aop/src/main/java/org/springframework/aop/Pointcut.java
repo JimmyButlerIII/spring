@@ -17,6 +17,10 @@
 package org.springframework.aop;
 
 /**
+ * 切入点
+ * 假如我们只增强某个方法，那这些实际被我们增强的方法就称为切入点，真正增强的方法才成为切入点，没有实际增强（可以被增强但是没有增强）的不是
+ * 提供了一个TruePointcut实例，当Pointcut为TruePointcut类型时，则会忽略所有的匹配条件，永远返回true
+ *
  * Core Spring pointcut abstraction.
  *
  * <p>A pointcut is composed of a {@link ClassFilter} and a {@link MethodMatcher}.
@@ -33,12 +37,14 @@ package org.springframework.aop;
 public interface Pointcut {
 
 	/**
+	 * 类过滤器，可以知道哪些类需要拦截
 	 * Return the ClassFilter for this pointcut.
 	 * @return the ClassFilter (never {@code null})
 	 */
 	ClassFilter getClassFilter();
 
 	/**
+	 *方法匹配器，可以知道哪些方法需要拦截
 	 * Return the MethodMatcher for this pointcut.
 	 * @return the MethodMatcher (never {@code null})
 	 */
@@ -46,6 +52,7 @@ public interface Pointcut {
 
 
 	/**
+	 * 提供了一个TruePointcut实例，当Pointcut为TruePointcut类型时，则会忽略所有的匹配条件，永远返回true
 	 * Canonical Pointcut instance that always matches.
 	 */
 	Pointcut TRUE = TruePointcut.INSTANCE;

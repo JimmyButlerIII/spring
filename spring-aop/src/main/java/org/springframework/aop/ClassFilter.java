@@ -36,6 +36,7 @@ package org.springframework.aop;
 public interface ClassFilter {
 
 	/**
+	 * true表示能够匹配。那就会进行织入的操作
 	 * Should the pointcut apply to the given interface or target class?
 	 * @param clazz the candidate target class
 	 * @return whether the advice should apply to the given target class
@@ -44,6 +45,7 @@ public interface ClassFilter {
 
 
 	/**
+	 * 提供一个默认常量，匹配所有的类
 	 * Canonical instance of a ClassFilter that matches all classes.
 	 */
 	ClassFilter TRUE = TrueClassFilter.INSTANCE;

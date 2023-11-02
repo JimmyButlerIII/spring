@@ -16,11 +16,13 @@
 
 package org.springframework.aop.support;
 
-import java.lang.reflect.Method;
-
 import org.springframework.aop.MethodMatcher;
 
+import java.lang.reflect.Method;
+
 /**
+ * 它表示不会考虑具体 方法参数。因为不用每次都检查参数，那么对于同样的类型的方法匹配结果，就可以在框架内部缓存以提高性能。
+ * 常用实现类AnnotationMethodMatcher
  * Convenient abstract superclass for static method matchers, which don't care
  * about arguments at runtime.
  *

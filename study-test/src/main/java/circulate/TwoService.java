@@ -17,4 +17,11 @@ public class TwoService {
 	public void test() {
 		System.out.println("TwoService-test"+ oneService);
 	}
+
+	public TwoService(OneService oneService) {
+		this.oneService = oneService;
+	}
+
+	public TwoService() {
+	}
 }

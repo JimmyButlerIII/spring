@@ -16,11 +16,11 @@
 
 package org.springframework.aop.framework;
 
-import java.io.Serializable;
-import java.lang.reflect.Proxy;
-
 import org.springframework.aop.SpringProxy;
 import org.springframework.core.NativeDetector;
+
+import java.io.Serializable;
+import java.lang.reflect.Proxy;
 
 /**
  * Default {@link AopProxyFactory} implementation, creating either a CGLIB proxy
@@ -49,8 +49,12 @@ import org.springframework.core.NativeDetector;
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 
+	/**
+	 * 判断是走jdk还是cglib
+	 */
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		// 如果当前运行环境是原生的，那么就使用JDK动态代理
 		if (!NativeDetector.inNativeImage() &&
 				(config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config))) {
 			Class<?> targetClass = config.getTargetClass();

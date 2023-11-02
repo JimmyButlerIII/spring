@@ -16,33 +16,13 @@
 
 package org.springframework.aop.aspectj;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.weaver.patterns.NamePattern;
 import org.aspectj.weaver.reflect.ReflectionWorld.ReflectionWorldException;
 import org.aspectj.weaver.reflect.ShadowMatchImpl;
-import org.aspectj.weaver.tools.ContextBasedMatcher;
-import org.aspectj.weaver.tools.FuzzyBoolean;
-import org.aspectj.weaver.tools.JoinPointMatch;
-import org.aspectj.weaver.tools.MatchingContext;
-import org.aspectj.weaver.tools.PointcutDesignatorHandler;
-import org.aspectj.weaver.tools.PointcutExpression;
-import org.aspectj.weaver.tools.PointcutParameter;
-import org.aspectj.weaver.tools.PointcutParser;
-import org.aspectj.weaver.tools.PointcutPrimitive;
-import org.aspectj.weaver.tools.ShadowMatch;
-
+import org.aspectj.weaver.tools.*;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.IntroductionAwareMethodMatcher;
 import org.springframework.aop.MethodMatcher;
@@ -63,7 +43,20 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
+ * Pointcut的一个重要实现类。AspectJ语法切点类。同时实现了MethodMatcher，AspectJ语法切点的匹配在这个类中完成。
+ * 最终有Aspect的PointcutExpressionImpl来完成部分工作
+ *
  * Spring {@link org.springframework.aop.Pointcut} implementation
  * that uses the AspectJ weaver to evaluate a pointcut expression.
  *
@@ -87,6 +80,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
 	private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<>();
 
+	// 初始化支持的切点语言表达式
 	static {
 		SUPPORTED_PRIMITIVES.add(PointcutPrimitive.EXECUTION);
 		SUPPORTED_PRIMITIVES.add(PointcutPrimitive.ARGS);
@@ -110,12 +104,14 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
 	private Class<?>[] pointcutParameterTypes = new Class<?>[0];
 
+	// 它持有BeanFactory 的引用，但是是可以为null的，也就是说它脱离容器也能够正常work
 	@Nullable
 	private BeanFactory beanFactory;
 
 	@Nullable
 	private transient ClassLoader pointcutClassLoader;
 
+	// 它最终通过一系列操作，由org.aspectj.weaver.tools.PointcutParser#parsePointcutExpression从字符串表达式解析出来
 	@Nullable
 	private transient PointcutExpression pointcutExpression;
 
@@ -247,6 +243,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
 
 	/**
+	 * 由此可见，我们不仅仅可议写&& ||  !这种。也支持 and or not这种哦~~~
 	 * If a pointcut expression has been specified in XML, the user cannot
 	 * write {@code and} as "&&" (though &amp;&amp; will work).
 	 * We also allow {@code and} between two pointcut sub-expressions.
@@ -267,6 +264,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 		return obtainPointcutExpression();
 	}
 
+	// 这是ClassFilter 匹配类。借助的PointcutExpression#couldMatchJoinPointsInType 去匹配
 	@Override
 	public boolean matches(Class<?> targetClass) {
 		PointcutExpression pointcutExpression = obtainPointcutExpression();

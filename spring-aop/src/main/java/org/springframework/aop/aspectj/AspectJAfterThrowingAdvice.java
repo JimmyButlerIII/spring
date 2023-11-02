@@ -16,16 +16,16 @@
 
 package org.springframework.aop.aspectj;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.aop.AfterAdvice;
 import org.springframework.lang.Nullable;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+
 /**
+ * 解析 AspectJ 中的 @AfterThrowing 属性来生成的 Advice
  * Spring AOP advice wrapping an AspectJ after-throwing advice method.
  *
  * @author Rod Johnson

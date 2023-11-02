@@ -23,7 +23,6 @@ import org.springframework.lang.Nullable;
  *  DeferredImportSelector是ImportSelect的子接口，该接口会在所有的@Configuration配置类处理完成后运行
  *	当选择器和@Conditional条件注解一起使用时是特别有用的，此接口还可以和接口Ordered或者@Ordered一起使用，定义多个选择器的优先级
  *
- *
  * A variation of {@link ImportSelector} that runs after all {@code @Configuration} beans
  * have been processed. This type of selector can be particularly useful when the selected
  * imports are {@code @Conditional}.

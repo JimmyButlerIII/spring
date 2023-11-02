@@ -16,6 +16,17 @@
 
 package org.springframework.aop.aspectj.annotation;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.reflect.AjType;
+import org.aspectj.lang.reflect.AjTypeSystem;
+import org.aspectj.lang.reflect.PerClauseKind;
+import org.springframework.aop.framework.AopConfigException;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.lang.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -24,24 +35,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.AjType;
-import org.aspectj.lang.reflect.AjTypeSystem;
-import org.aspectj.lang.reflect.PerClauseKind;
-
-import org.springframework.aop.framework.AopConfigException;
-import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.lang.Nullable;
 
 /**
  * Abstract base class for factories that can create Spring AOP Advisors
@@ -103,7 +96,9 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	@Override
 	public void validate(Class<?> aspectClass) throws AopConfigException {
 		// If the parent has the annotation and isn't abstract it's an error
+		// 获取父类
 		Class<?> superclass = aspectClass.getSuperclass();
+		// 如果父类不是抽象类,并且父类上有@Aspect注解,则抛出异常
 		if (superclass.getAnnotation(Aspect.class) != null &&
 				!Modifier.isAbstract(superclass.getModifiers())) {
 			throw new AopConfigException("[" + aspectClass.getName() + "] cannot extend concrete aspect [" +

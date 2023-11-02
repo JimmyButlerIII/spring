@@ -268,6 +268,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		// 过滤出带有Configuration，Import，Component, ComponentScan, ImportResource,以及方法上带有Bean注解的类
 		for (String beanName : candidateNames) {
+			// 获取指定beanName的BeanDefinition
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
 			if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
 				if (logger.isDebugEnabled()) {

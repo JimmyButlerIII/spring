@@ -16,18 +16,19 @@
 
 package org.springframework.aop.interceptor;
 
-import java.io.Serializable;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.lang.Nullable;
 
+import java.io.Serializable;
+
 /**
+ * 暴露调用的拦截器，将正在调用的方法暴露为线程本地对象。此拦截器通常将是拦截器链中的第一个。
+ *
  * Interceptor that exposes the current {@link org.aopalliance.intercept.MethodInvocation}
  * as a thread-local object. We occasionally need to do this; for example, when a pointcut
  * (e.g. an AspectJ expression pointcut) needs to know the full invocation context.

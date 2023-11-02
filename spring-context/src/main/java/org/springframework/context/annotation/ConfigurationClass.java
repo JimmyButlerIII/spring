@@ -53,11 +53,14 @@ final class ConfigurationClass {
 
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 
+	// 保存解析后的当前配置类中所有的@Bean方法
 	private final Set<BeanMethod> /**/beanMethods = new LinkedHashSet<>();
 
+	// 保存通过@ImportResource导入的资源文件
 	private final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
 			new LinkedHashMap<>();
 
+	// 保存通过@Import导入的ImportBeanDefinitionRegistrar接口的实现类
 	private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> importBeanDefinitionRegistrars =
 			new LinkedHashMap<>();
 

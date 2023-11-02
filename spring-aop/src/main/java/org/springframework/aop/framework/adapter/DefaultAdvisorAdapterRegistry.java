@@ -16,15 +16,14 @@
 
 package org.springframework.aop.framework.adapter;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.aopalliance.aop.Advice;
-import org.aopalliance.intercept.MethodInterceptor;
-
-import org.springframework.aop.Advisor;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
 
 /**
  * Default implementation of the {@link AdvisorAdapterRegistry} interface.
@@ -78,11 +77,15 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 	@Override
 	public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
 		List<MethodInterceptor> interceptors = new ArrayList<>(3);
+		// 从Advisor中获取 Advice
 		Advice advice = advisor.getAdvice();
+		// 如果是MethodInterceptor类型的，那么直接放入到集合中
 		if (advice instanceof MethodInterceptor) {
 			interceptors.add((MethodInterceptor) advice);
 		}
+		// 遍历所有的AdvisorAdapter
 		for (AdvisorAdapter adapter : this.adapters) {
+			// 如果当前的AdvisorAdapter支持当前的Advice，实际上就是当前的Advice需要通过适配器转换为MethodInterceptor
 			if (adapter.supportsAdvice(advice)) {
 				interceptors.add(adapter.getInterceptor(advisor));
 			}

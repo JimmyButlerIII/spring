@@ -16,18 +16,19 @@
 
 package org.springframework.aop.aspectj;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.weaver.tools.JoinPointMatch;
-
 import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.lang.Nullable;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+
 /**
+ * 解析 AspectJ 中的 @Around 属性来生成的 Advice
+ * 将执行类 MethodInvocation(MethodInvocation其实就是Pointcut) 进行包裹起来, 并控制其执行的 Advice
  * Spring AOP around advice (MethodInterceptor) that wraps
  * an AspectJ advice method. Exposes ProceedingJoinPoint.
  *

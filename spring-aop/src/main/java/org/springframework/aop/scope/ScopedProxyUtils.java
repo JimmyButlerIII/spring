@@ -56,18 +56,21 @@ public abstract class ScopedProxyUtils {
 	public static BeanDefinitionHolder createScopedProxy(BeanDefinitionHolder definition,
 			BeanDefinitionRegistry registry, boolean proxyTargetClass) {
 
+		// 拿到原类的名字，和对应的BeanDefinition
 		String originalBeanName = definition.getBeanName();
 		BeanDefinition targetDefinition = definition.getBeanDefinition();
 		String targetBeanName = getTargetBeanName(originalBeanName);
 
 		// Create a scoped proxy definition for the original bean name,
 		// "hiding" the target bean in an internal target definition.
+		// 手动创建Scope代理类的proxyDefinition
+		// 设置proxyDefinition的BeanClass为ScopedProxyFactoryBean。同时复制targetDefinition的属性到proxyDefinition
 		RootBeanDefinition proxyDefinition = new RootBeanDefinition(ScopedProxyFactoryBean.class);
 		proxyDefinition.setDecoratedDefinition(new BeanDefinitionHolder(targetDefinition, targetBeanName));
 		proxyDefinition.setOriginatingBeanDefinition(targetDefinition);
 		proxyDefinition.setSource(definition.getSource());
 		proxyDefinition.setRole(targetDefinition.getRole());
-
+		// 设置proxyDefinition的属性targetBeanName
 		proxyDefinition.getPropertyValues().add("targetBeanName", targetBeanName);
 		if (proxyTargetClass) {
 			targetDefinition.setAttribute(AutoProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
@@ -78,6 +81,7 @@ public abstract class ScopedProxyUtils {
 		}
 
 		// Copy autowire settings from original bean definition.
+		// 复制原来targetDefinition的的autowireCandidate和primary属性到proxyDefinition
 		proxyDefinition.setAutowireCandidate(targetDefinition.isAutowireCandidate());
 		proxyDefinition.setPrimary(targetDefinition.isPrimary());
 		if (targetDefinition instanceof AbstractBeanDefinition) {
@@ -85,10 +89,12 @@ public abstract class ScopedProxyUtils {
 		}
 
 		// The target bean should be ignored in favor of the scoped proxy.
+		// 设置原来的BeanDefinition的autowireCandidate为false，不能进行自动注入
 		targetDefinition.setAutowireCandidate(false);
 		targetDefinition.setPrimary(false);
 
 		// Register the target bean as separate bean in the factory.
+		// 将原类的BeanDefinition注册到工厂中
 		registry.registerBeanDefinition(targetBeanName, targetDefinition);
 
 		// Return the scoped proxy definition as primary bean definition

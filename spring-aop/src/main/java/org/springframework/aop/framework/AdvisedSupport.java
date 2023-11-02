@@ -16,23 +16,8 @@
 
 package org.springframework.aop.framework;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.aopalliance.aop.Advice;
-
-import org.springframework.aop.Advisor;
-import org.springframework.aop.DynamicIntroductionAdvice;
-import org.springframework.aop.IntroductionAdvisor;
-import org.springframework.aop.IntroductionInfo;
-import org.springframework.aop.TargetSource;
+import org.springframework.aop.*;
 import org.springframework.aop.support.DefaultIntroductionAdvisor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.target.EmptyTargetSource;
@@ -42,7 +27,15 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
+ * AdvisedSupport本身不会提供创建代理的任何方法，专注于生成拦截器链
+ *
  * Base class for AOP proxy configuration managers.
  * These are not themselves AOP proxies, but subclasses of this class are
  * normally factories from which AOP proxy instances are obtained directly.
@@ -457,6 +450,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 
 	/**
+	 * 从缓存中获取拦截器链，如果没有的话，就创建拦截器链并放入缓存中
 	 * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
 	 * for the given method, based on this configuration.
 	 * @param method the proxied method
@@ -467,6 +461,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 		MethodCacheKey cacheKey = new MethodCacheKey(method);
 		List<Object> cached = this.methodCache.get(cacheKey);
 		if (cached == null) {
+			// 获取拦截器链
 			cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(
 					this, method, targetClass);
 			this.methodCache.put(cacheKey, cached);

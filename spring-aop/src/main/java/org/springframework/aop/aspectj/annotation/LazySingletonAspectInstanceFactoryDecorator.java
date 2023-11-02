@@ -16,12 +16,15 @@
 
 package org.springframework.aop.aspectj.annotation;
 
-import java.io.Serializable;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+
 /**
+ * 工厂装饰器，仅实例化一次。
+ * 用来解析 AspectJ 中的 @Aspect 注解，并创建对应的的 Advisor
+ *
  * Decorator to cause a {@link MetadataAwareAspectInstanceFactory} to instantiate only once.
  *
  * @author Rod Johnson

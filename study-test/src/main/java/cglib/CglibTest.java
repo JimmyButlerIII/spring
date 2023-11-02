@@ -13,7 +13,7 @@ public class CglibTest {
 		enhancer.setCallbacks(callbacks);
 		UserService userService = (UserService) enhancer.create();
 		userService.find();
-		System.out.println("====================================");
+		System.out.println("==================================n==");
 		userService.add();
 		System.out.println("====================================");
 		userService.delete();
